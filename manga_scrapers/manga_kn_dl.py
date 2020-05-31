@@ -19,7 +19,8 @@ from io import BytesIO
 DEBUG = True
 def dprint(*args, **kwargs):
     if DEBUG:
-        print(*args, **kwargs) #-- END DEBUGTOOL --
+        print(*args, **kwargs) 
+#-- END DEBUGTOOL --
 
 #-- BEGIN CONSTANTS --
 TMP_DIREC = "tmp"
@@ -30,7 +31,7 @@ ERROR_STRING = "ERR404"
 CDN_DOMAINS = ['blogspot', 'mpcdn', 'mgimgcdn', 'mkklcdn']
 DIV_NAMES = ["panel-story-chapter-list"]
 
-# downloading script
+# drawing script
 # courtesy of mhmet mecek
 # https://stackoverflow.com/questions/18424624/using-selenium-to-save-images-from-page
 # save loaded image to canvas and use base64 codec-ing
