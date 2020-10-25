@@ -72,7 +72,7 @@ def download_chapter(lang, chapter_id):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("id", help="manga ID, as see in title URL")
+    parser.add_argument("id", help="manga ID, as seen in title URL")
     parser.add_argument("dirname", help="directory name to save manga to")
     parser.add_argument("--cstart", help="serial number of starting chapter (count from one)")
     parser.add_argument("--cstop", help="serial number of last chapter")
