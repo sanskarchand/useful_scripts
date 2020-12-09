@@ -119,7 +119,7 @@ def main():
     # if not end range is specified, ask for it
     stop_chap = None
     if my_args.cstop is None:
-        stop_x = int(input("Starting chapter: "))
+        stop_x = int(input("Stopping chapter: "))
         stop_chap = stop_x
     else:
         stop_chap = int(my_args.cstop)
