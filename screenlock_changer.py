@@ -4,29 +4,50 @@ import os
 from PIL import Image, ImageFont, ImageDraw
 import signal
 import sys
+import subprocess
+#import psutil
 
+# Meant to be used with xflock4 and xfce4-screensaver
+# only arg is PID of xflock4
 #path from home
-PATH = 'Pictures/screensaver_img/mylockscreen.png'
+FNAME_A = 'Pictures/screensaver_img/lockA.png'
+FNAME_B = 'Pictures/screensaver_img/lockB.png'
+ERRFILE = 'sans_scrnlock_outerr.txt'
 FILLCOL = '#087C83'
-FONT_SIZE = 50
-FONT = ImageFont.truetype('/home/<USERNAME>/Downloads/fonts/ttf-envy-code-r/src/Envy Code R PR7/Envy Code R Bold.ttf', FONT_SIZE)
+FONT_SIZE = 64
+FONT = ImageFont.truetype('/home/drakinosh/Downloads/fonts/ttf-envy-code-r/src/Envy Code R PR7/Envy Code R Bold.ttf', FONT_SIZE)
 
 home_path = os.path.expanduser('~')
-orig_file_path = os.path.join(home_path, PATH)
-image = Image.open(orig_file_path)
-rind = orig_file_path.rfind('.')
-alt_path = orig_file_path[:rind] + "_1_" + orig_file_path[rind:]
+if os.path.exists(os.path.join(home_path, FNAME_A)):
+    orig_file_path = os.path.join(home_path, FNAME_A)
+    alt_path = os.path.join(home_path, FNAME_B)
+else:
+    orig_file_path = os.path.join(home_path, FNAME_B)
+    alt_path = os.path.join(home_path, FNAME_A)
 
 file_path = orig_file_path
+error_path = os.path.join(home_path, ERRFILE)
+'''
+sys.stdout = open(error_path, 'w')
+sys.stderr = sys.stdout
+'''
 
-def sigterm_handler(_signo, _stack_frame):
-    # restore the original file
+
+def should_exit():
+    ret = subprocess.check_output(["xfce4-screensaver-command", "-t"])
+    return "0 seconds" in str(ret)
+
+def cleanup():
     if os.path.exists(alt_path):
         os.rename(alt_path, orig_file_path)
     sys.exit(0)
 
-#register signal handler
-signal.signal(signal.SIGTERM, sigterm_handler)
+def sig_handler(_signo, _stack_frame):
+    cleanup()
+
+#register signal handlers
+signal.signal(signal.SIGTERM, sig_handler)
+signal.signal(signal.SIGINT, sig_handler)
 
 def create_image_timestamp(src_img):
     global file_path
@@ -45,9 +66,8 @@ def create_image_timestamp(src_img):
 
     src_img.paste(new_img, (int(0.8*w), int(0.8*h)))
     
-
-    # remove old file
-    os.remove(file_path)
+    
+    del_file = file_path
 
     if file_path == orig_file_path:
         file_path = alt_path
@@ -55,15 +75,23 @@ def create_image_timestamp(src_img):
         file_path = orig_file_path
 
     src_img.save(file_path, "PNG")
+    time.sleep(10)               #10 secs for xfce4-screensaver to transition
+    os.remove(del_file)     
 
 
 
 def main():
-    
     #save a backup of the original
-    image.save("lockscreen_img_backup.png", "PNG")
-
+    bkup_path = os.path.join(os.path.expanduser('~'), "lockscreen_img_backup.png")
+    image = Image.open(orig_file_path)
+    image.save(bkup_path, "PNG")
+    
     while True:
         create_image_timestamp(image)
-        time.sleep(60)
+        
+        if should_exit():
+            cleanup()
+
+
+        time.sleep(50)
 main()
