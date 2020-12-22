@@ -13,9 +13,9 @@ import subprocess
 FNAME_A = 'Pictures/screensaver_img/lockA.png'
 FNAME_B = 'Pictures/screensaver_img/lockB.png'
 ERRFILE = 'sans_scrnlock_outerr.txt'
-FILLCOL = '#087C83'
+FILLCOL = '#087C83'                     #override value if auto detect fails
 FONT_SIZE = 64
-FONT = ImageFont.truetype('/home/drakinosh/Downloads/fonts/ttf-envy-code-r/src/Envy Code R PR7/Envy Code R Bold.ttf', FONT_SIZE)
+FONT = ImageFont.truetype('/home/<USERNAME>/Downloads/fonts/ttf-envy-code-r/src/Envy Code R PR7/Envy Code R Bold.ttf', FONT_SIZE)
 
 home_path = os.path.expanduser('~')
 if os.path.exists(os.path.join(home_path, FNAME_A)):
@@ -49,7 +49,25 @@ def sig_handler(_signo, _stack_frame):
 signal.signal(signal.SIGTERM, sig_handler)
 signal.signal(signal.SIGINT, sig_handler)
 
-def create_image_timestamp(src_img):
+def detect_color(src_img):
+    '''
+    Look at certain positions (likely to be devioid of foreground)
+    in order to determine what color to use for the 'time square'.
+    All positions must agree on color.
+    Failing that, use the override FILCOL
+    '''
+    pixels = src_img.load()
+    positions = [(76, 308), (78, 130)]
+    
+    colors = [pixels[x,y] for (x,y) in positions]
+    if len(set(colors)) == 1:
+        #all items are the same
+        return colors[0]
+    
+    return FILCOL
+    
+    
+def create_image_timestamp(src_img, color):
     global file_path
 
     w, h = src_img.size
@@ -59,7 +77,7 @@ def create_image_timestamp(src_img):
     ts_width = int(0.2 * w)
     ts_height = int(0.2 * h)
 
-    new_img = Image.new('RGB', (ts_width, ts_height), FILLCOL)
+    new_img = Image.new('RGB', (ts_width, ts_height), color)
 
     time_draw = ImageDraw.Draw(new_img)
     time_draw.text((10, 10), ts_string, font=FONT)
@@ -85,9 +103,9 @@ def main():
     bkup_path = os.path.join(os.path.expanduser('~'), "lockscreen_img_backup.png")
     image = Image.open(orig_file_path)
     image.save(bkup_path, "PNG")
-    
+    col = detect_color(image) 
     while True:
-        create_image_timestamp(image)
+        create_image_timestamp(image, col)
         
         if should_exit():
             cleanup()
