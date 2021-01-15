@@ -78,10 +78,12 @@ if "404" in driver.title:
 
 
 # get the chaptes in chronological order
-chapters_list = driver.find_elements_by_class_name("chapter-name")
+chapters_list = driver.find_elements_by_css_selector(".chapter-list .row")
 chapters_list.reverse()
-chapter_names = [web_elem.text for web_elem in chapters_list]
-chapter_urls = [web_elem.get_attribute("href") for web_elem in chapters_list]
+anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
+
+chapter_names = [elem.text for elem in anchor_elems]
+chapter_urls = [elem.get_attribute("href") for elem in anchor_elems]
 
 # preprocess chapter names
 chapter_names = [name.replace(":", "__") for name in chapter_names]
@@ -114,7 +116,6 @@ if not os.path.exists(fname):
 for chap_index in range(start_chap, stop_chap+1):
     
     print("Downloading Chapter indexed {0}...".format(chap_index))
-    
     url = chapter_urls[chap_index]
     chapter_name = chapter_names[chap_index]
 
