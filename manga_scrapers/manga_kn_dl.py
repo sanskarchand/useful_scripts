@@ -29,6 +29,7 @@ WAIT_TIME = 0.7                         # wait 700 msec between images
 WAIT_CHAP = 5                           # wait 5 sec between chapters
 ERROR_STRING = "ERR404"
 CDN_DOMAINS = ['blogspot', 'mpcdn', 'mgimgcdn', 'mkklcdn']
+FILTER_DOMAIN_STRINGS = ['avt.']         # probably downloads avatars; ignore these images
 DIV_NAMES = ["panel-story-chapter-list"]
 
 # drawing script
@@ -140,7 +141,8 @@ for chap_index in range(start_chap, stop_chap+1):
     for elem in image_elems:
         source = elem.get_attribute("src")
         conditionals = [domain_str in source for domain_str in CDN_DOMAINS]
-        if any(conditionals):
+        filters = [domain_str in source for domain_str in FILTER_DOMAIN_STRINGS]
+        if any(conditionals) and not any(filters):
             final_elems.append(elem)
    
 
