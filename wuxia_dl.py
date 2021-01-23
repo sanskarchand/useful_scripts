@@ -53,7 +53,7 @@ def make_pdf(chapter_list, name, scraper):
             subprocess.call(['wkhtmltopdf', '--dump-default-toc-xsl'], stdout=outfile)
 
     toc = {
-        'xsl-style-sheet': 'toc.xsl'
+        'xsl-style-sheet': 'default_toc.xsl'
     }
 
     body = ''
@@ -128,7 +128,7 @@ def main():
     if r.status_code != 200:
         print(f"Error: Could not get main page (Status {r.status_code})")
     
-    chapter_list = extract_chapters(r.text)
+    chapter_list = extract_chapters(r.text)[:5]
     make_pdf(chapter_list, novelName, scraper)
 
 if __name__ == '__main__':
