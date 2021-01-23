@@ -128,7 +128,7 @@ def main():
     if r.status_code != 200:
         print(f"Error: Could not get main page (Status {r.status_code})")
     
-    chapter_list = extract_chapters(r.text)[:5]
+    chapter_list = extract_chapters(r.text)
     make_pdf(chapter_list, novelName, scraper)
 
 if __name__ == '__main__':
