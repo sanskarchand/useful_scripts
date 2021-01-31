@@ -12,7 +12,7 @@ BASE_URL_CHAPTER = BASE_URL.format('chapter/{}')
 
 ALLOWED_LANGS = ('English',)
 CHAP_ID_FORMAT = 'Vol_{}_Ch_{}__'
-DISALLOWED_CHARS = " :?'!"
+DISALLOWED_CHARS = " :?'!/"
 REPLACEMENT_CHAR = "_"
 
 LANG_MAP = {'English': 'ENG'}
@@ -96,7 +96,7 @@ def main():
         manga_metadata = json.loads(resp_manga.text)
     else:
         print('Failure. Status code: ', resp_manga.status_code)
-        os.quit()
+        #os.quit()
         sys.exit()
     
     chapter_list = []
