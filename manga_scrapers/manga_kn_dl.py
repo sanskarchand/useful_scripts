@@ -25,6 +25,9 @@ def dprint(*args, **kwargs):
 #-- BEGIN CONSTANTS --
 TMP_DIREC = "tmp"
 URL = "https://manga{0}.com/manga/{1}"
+URL_ALT = "https://manga{0}.com/{1}"    # for manga named read-{hash}
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0"
+
 WAIT_TIME = 0.7                         # wait 700 msec between images
 WAIT_CHAP = 5                           # wait 5 sec between chapters
 ERROR_STRING = "ERR404"
@@ -61,13 +64,22 @@ prog_args = parser.parse_args()
 #another alternative method that didn't work
 #fire_prof.set_preference("browser.helperApps.neverAsk.saveToDisk", "image/jpeg, image/png, image/webp")
 
-driver = webdriver.Firefox()
+profile = webdriver.FirefoxProfile()
+profile.set_preference("general.useragent.override", USER_AGENT)
+driver = webdriver.Firefox(profile)
 #-- END OBJECTS --
 
 
 #-- BEGIN MAIN --
 domain_name = "nelo" if prog_args.domain == "nelo" else "kakalot"
-full_url = URL.format(domain_name, prog_args.mname)
+
+fmtURL  = None
+if 'read-' in prog_args.mname:
+    fmtURL = URL_ALT
+else:
+    fmtURL = URL
+
+full_url = fmtURL.format(domain_name, prog_args.mname)
 
 print("...Downloading webpage...")
 driver.get(full_url)
@@ -78,10 +90,29 @@ if "404" in driver.title:
     sys.exit()
 
 
-# get the chaptes in chronological order
-chapters_list = driver.find_elements_by_css_selector(".chapter-list .row")
-chapters_list.reverse()
-anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
+def getChapterLinks():
+
+    # method 1:
+    anchor_elems = driver.find_elements_by_css_selector(".chapter-name")
+    if anchor_elems:
+        return anchor_elems
+    
+    # method 2:
+    chapters_list = driver.find_elements_by_css_selector(".panel-story-chapter-list .a-h")
+    chapters_list.reverse()
+    anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
+    if anchor_elems:
+        return anchor_elems
+
+    # method 3:
+    chapters_list = driver.find_elements_by_css_selector(".chapter-list .row")
+    chapters_list.reverse()
+    anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
+    if anchor_elems:
+        return anchor_elems
+
+
+anchor_elems = getChapterLinks()
 
 chapter_names = [elem.text for elem in anchor_elems]
 chapter_urls = [elem.get_attribute("href") for elem in anchor_elems]
