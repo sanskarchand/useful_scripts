@@ -32,6 +32,7 @@ LOGGER_FILENAME = "mtowndl.log"
 SUPPRESS_STDOUT = False                             # set to True for no printing at all
 PROGBAR_LEN = 80
 PROGBAR_ELEM = "▅"
+ADD_INFO_FILE = True                              
 #-------------------------------#
 #  Data structures              #
 #-------------------------------#
@@ -225,6 +226,17 @@ def main():
         print_cond_f(f"Downloading chapter {chapter.index+1}...")
         logging.info(f"Downloading chapter {chapter.index} => {chapter.title}")
         download_chapter(chapter)
+
+    # extra metadata
+    if ADD_INFO_FILE:
+        with open("info.txt", "w") as f:
+            v = "https://github.com/sanskarchand/useful_scripts/blob/master/manga_scrapers/mtowndl.py"
+
+            stri  = f"Downloaded on {datetime.datetime.now().strftime('%c')}\n"
+            stri += f"using {v}\n"
+            stri += "from " + URL.format(mangaName=args.name)
+
+            f.write(stri)
 
 
     logging.info(f"\n\nSession ended at {datetime.datetime.now().strftime('%c')}\n\n")
