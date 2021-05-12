@@ -35,21 +35,6 @@ CDN_DOMAINS = ['blogspot', 'mpcdn', 'mgimgcdn', 'mkklcdn']
 FILTER_DOMAIN_STRINGS = ['avt.']         # probably downloads avatars; ignore these images
 DIV_NAMES = ["panel-story-chapter-list"]
 
-# drawing script
-# courtesy of mhmet mecek
-# https://stackoverflow.com/questions/18424624/using-selenium-to-save-images-from-page
-# save loaded image to canvas and use base64 codec-ing
-SCRIPT_ = """
-var dl_c = document.createElement('canvas');
-var ctx = dl_c.getContext('2d');
-var dl_img = document.getElementsByTagName('img')[0];
-dl_c.height = dl_img.naturalHeight;
-dl_c.width = dl_img.naturalWidth;
-ctx.drawImage(dl_img, 0, 0, dl_img.naturalWidth, dl_img.naturalHeight);
-var base64String = dl_c.toDataURL();
-return base64String;
-"""
-
 #-- END CONSTANTS --
 
 #-- BEGIN OBJECTS --
@@ -175,27 +160,14 @@ for chap_index in range(start_chap, stop_chap+1):
         filters = [domain_str in source for domain_str in FILTER_DOMAIN_STRINGS]
         if any(conditionals) and not any(filters):
             final_elems.append(elem)
-   
-
-
-    urls = [elem.get_attribute("src") for elem in final_elems]
-
-    i = 1
-    for url in urls:
-        dprint("Downloading ", url)
-        driver.get(url) # should autosav
-        
-        img_base64_dat = driver.execute_script(SCRIPT_)
-        ind = img_base64_dat.find(",")
-        img_base64_dat = img_base64_dat[ind:]
-        im = Image.open(BytesIO(base64.b64decode(img_base64_dat)))
-        im = im.convert("RGB")
-        im.save(os.path.join(chapter_path, str(i) + ".jpg"), "JPEG")
+    
+    for idx, image_elem in enumerate(final_elems):
+        path = os.path.join(chapter_path, f"{idx+1}.png")
+        scrn = image_elem.screenshot_as_png
+        with open(path, "wb") as f:
+            f.write(scrn)
 
         time.sleep(WAIT_TIME)
-        i += 1
-
-
     time.sleep(WAIT_CHAP)
-
+        
 #-- END MAIN --
