@@ -14,6 +14,7 @@ import sys, os, time
 from PIL import Image
 import base64
 from io import BytesIO
+import datetime
 
 #-- BEGIN DEBUGTOOL --
 DEBUG = True
@@ -23,6 +24,7 @@ def dprint(*args, **kwargs):
 #-- END DEBUGTOOL --
 
 #-- BEGIN CONSTANTS --
+METADATA = True
 TMP_DIREC = "tmp"
 URL = "https://manga{0}.com/manga/{1}"
 URL_ALT = "https://manga{0}.com/{1}"    # for manga named read-{hash}
@@ -38,7 +40,7 @@ DIV_NAMES = ["panel-story-chapter-list"]
 #-- END CONSTANTS --
 
 #-- BEGIN OBJECTS --
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(epilog="Example usage:  python manga_kn_dl.py kaka swot Swot_Manga")
 parser.add_argument("domain", help="Values: nelo or kaka")
 parser.add_argument("mname", help="Name of manga in URL path")
 parser.add_argument("fname", help="Name of folder to save chapters in")
@@ -105,6 +107,10 @@ chapter_urls = [elem.get_attribute("href") for elem in anchor_elems]
 # preprocess chapter names
 chapter_names = [name.replace(":", "__") for name in chapter_names]
 
+
+chapter_names.reverse()
+chapter_urls.reverse()
+
 start_chap = None
 stop_chap = None
 
@@ -169,5 +175,12 @@ for chap_index in range(start_chap, stop_chap+1):
 
         time.sleep(WAIT_TIME)
     time.sleep(WAIT_CHAP)
-        
+
+driver.close()
+
+if METADATA:
+    with open(os.path.join(fname, "info.txt"), "w") as f:
+        stri = f"Downloaded on {datetime.datetime.now().strftime('%c')} using manga_kn_dl.py"
+        f.write(stri)
+
 #-- END MAIN --
