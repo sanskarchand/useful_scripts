@@ -28,6 +28,7 @@ METADATA = True
 TMP_DIREC = "tmp"
 URL = "https://manga{0}.com/manga/{1}"
 URL_ALT = "https://manga{0}.com/{1}"    # for manga named read-{hash}
+URL_ALT2 = "https://{0}.com/{1}"        # for readmanganato
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0"
 
 WAIT_TIME = 0.7                         # wait 700 msec between images
@@ -41,7 +42,7 @@ DIV_NAMES = ["panel-story-chapter-list"]
 
 #-- BEGIN OBJECTS --
 parser = argparse.ArgumentParser(epilog="Example usage:  python manga_kn_dl.py kaka swot Swot_Manga")
-parser.add_argument("domain", help="Values: nelo or kaka")
+parser.add_argument("domain", help="Values: nelo, kaka, nato")
 parser.add_argument("mname", help="Name of manga in URL path")
 parser.add_argument("fname", help="Name of folder to save chapters in")
 parser.add_argument("--cstart", help="Chapter index to start with. Inclusive")
@@ -58,7 +59,7 @@ driver = webdriver.Firefox(profile)
 
 
 #-- BEGIN MAIN --
-domain_name = "nelo" if prog_args.domain == "nelo" else "kakalot"
+domain_name = prog_args.domain   #"nelo" if prog_args.domain == "nelo" else "kakalot"
 
 fmtURL  = None
 if 'read-' in prog_args.mname:
@@ -67,6 +68,8 @@ else:
     fmtURL = URL
 
 full_url = fmtURL.format(domain_name, prog_args.mname)
+if domain_name == "nato":
+    full_url = URL_ALT2.format("readmanganato", prog_args.mname)
 
 print("...Downloading webpage...")
 driver.get(full_url)
