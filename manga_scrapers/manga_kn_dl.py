@@ -15,6 +15,7 @@ from PIL import Image
 import base64
 from io import BytesIO
 import datetime
+import sys
 
 #-- BEGIN DEBUGTOOL --
 DEBUG = True
@@ -41,12 +42,13 @@ DIV_NAMES = ["panel-story-chapter-list"]
 #-- END CONSTANTS --
 
 #-- BEGIN OBJECTS --
-parser = argparse.ArgumentParser(epilog="Example usage:  python manga_kn_dl.py kaka swot Swot_Manga")
+parser = argparse.ArgumentParser(epilog="Example usage:  python manga_kn_dl.py kakalot swot Swot_Manga")
 parser.add_argument("domain", help="Values: nelo, kaka, nato")
 parser.add_argument("mname", help="Name of manga in URL path")
 parser.add_argument("fname", help="Name of folder to save chapters in")
 parser.add_argument("--cstart", help="Chapter index to start with. Inclusive")
 parser.add_argument("--cstop", help="Chapter index to stop at. Inclusive")
+parser.add_argument('--clist', help='Comma-separated chapter list', type=str)
 prog_args = parser.parse_args()
 
 #another alternative method that didn't work
@@ -71,7 +73,7 @@ full_url = fmtURL.format(domain_name, prog_args.mname)
 if domain_name == "nato":
     full_url = URL_ALT2.format("readmanganato", prog_args.mname)
 
-print("...Downloading webpage...")
+print("...Downloading webpage...", full_url)
 driver.get(full_url)
 
 if "404" in driver.title:
@@ -114,11 +116,10 @@ chapter_names = [name.replace(":", "__") for name in chapter_names]
 chapter_names.reverse()
 chapter_urls.reverse()
 
-start_chap = None
-stop_chap = None
+chap_index_list = None
 
 # Interactive mode - start and stop args have not been supplied
-if not prog_args.cstart:
+if not (prog_args.cstart or prog_args.clist):
     print("Chapters: ")
 
     for idx, chap_name in enumerate(chapter_names):
@@ -126,20 +127,32 @@ if not prog_args.cstart:
 
     start_chap = input("Start Index: ")
     stop_chap = input("Stop Index: ")
-else:
+    start_chap = int(start_chap)
+    stop_chap = int(stop_chap)
+    chap_index_list = range(start_chap, stop_chap+1)
+elif prog_args.clist:
+    chap_index_list = [int(chap_index) for chap_index in prog_args.clist.split(',')]
+elif prog_args.cstart:
     start_chap = prog_args.cstart
     stop_chap = prog_args.cstop
+    start_chap = int(start_chap)
+    stop_chap = int(stop_chap)
+    chap_index_list = range(start_chap, stop_chap+1)
+else:
+    print("Chapters not provided")
+    driver.quit()
+    sys.exit()
 
+    
 # Parse indices
-start_chap = int(start_chap)
-stop_chap = int(stop_chap)
+
 
 fname = prog_args.fname
 # Make the folder
 if not os.path.exists(fname):
     os.mkdir(fname)
 
-for chap_index in range(start_chap, stop_chap+1):
+for chap_index in chap_index_list:
     
     print("Downloading Chapter indexed {0}...".format(chap_index))
     url = chapter_urls[chap_index]
