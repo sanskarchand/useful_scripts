@@ -91,14 +91,14 @@ def getChapterLinks():
     
     # method 2:
     chapters_list = driver.find_elements_by_css_selector(".panel-story-chapter-list .a-h")
-    chapters_list.reverse()
+    #chapters_list.reverse()
     anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
     if anchor_elems:
         return anchor_elems
 
     # method 3:
     chapters_list = driver.find_elements_by_css_selector(".chapter-list .row")
-    chapters_list.reverse()
+    #chapters_list.reverse()
     anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
     if anchor_elems:
         return anchor_elems
