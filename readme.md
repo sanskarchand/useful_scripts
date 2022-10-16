@@ -9,6 +9,8 @@ Firefox driver - must support HTML5
 If you are going to archive a lot of manga, I recommend that you 
 convert them to JPEG first. Imagemagick's mogrify can help with that.
 
+A bash script for conversion and deletion has been provided.
+
 ---
 #### mangas_scrapers/mtowndl.py
 mangatown downloader
