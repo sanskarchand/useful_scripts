@@ -8,11 +8,10 @@ fi
 #main directory name
 DIRNAME=$1
 
-for d in $DIRNAME*/ ; do
+for d in $DIRNAME/*/ ; do
     cd "$d"
     echo "Processsing ${d}"
     mogrify -format jpg *.png 
     rm *.png
-    cd ..
-    echo "My pwd is `pwd`"
+    cd -
 done
