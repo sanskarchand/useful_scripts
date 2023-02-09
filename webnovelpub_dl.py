@@ -150,7 +150,7 @@ def main():
     
     chapter_list = extract_chapters(r.text, slug)
     print(f"There are {len(chapter_list)} chapters")
-    make_pdf(chapter_list[:2], slug)
+    make_pdf(chapter_list, slug)
 
 if __name__ == '__main__':
     main()
