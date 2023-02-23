@@ -10,6 +10,7 @@
 
 import argparse
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 import sys, os, time
 from PIL import Image
 import base64
@@ -85,21 +86,21 @@ if "404" in driver.title:
 def getChapterLinks():
 
     # method 1:
-    anchor_elems = driver.find_elements_by_css_selector(".chapter-name")
+    anchor_elems = driver.find_elements(By.CSS_SELECTOR, ".chapter-name")
     if anchor_elems:
         return anchor_elems
     
     # method 2:
-    chapters_list = driver.find_elements_by_css_selector(".panel-story-chapter-list .a-h")
+    chapters_list = driver.find_elements(By.CSS_SELECTOR, ".panel-story-chapter-list .a-h")
     #chapters_list.reverse()
     anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
     if anchor_elems:
         return anchor_elems
 
     # method 3:
-    chapters_list = driver.find_elements_by_css_selector(".chapter-list .row")
+    chapters_list = driver.find_elements(By.CSS_SELECTOR, ".chapter-list .row")
     #chapters_list.reverse()
-    anchor_elems = [web_elem.find_elements_by_css_selector("span > a")[0] for web_elem in chapters_list]
+    anchor_elems = [web_elem.find_elements(By.CSS_SELECTOR, "span > a")[0] for web_elem in chapters_list]
     if anchor_elems:
         return anchor_elems
 
@@ -172,7 +173,7 @@ for chap_index in chap_index_list:
 
 
     # Then, get image links
-    image_elems = driver.find_elements_by_tag_name('img')
+    image_elems = driver.find_elements(By.TAG_NAME, 'img')
 
     # Check for correct domain
     final_elems= []
